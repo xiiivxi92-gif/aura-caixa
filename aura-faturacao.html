@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1a1a1a">
+<title>Aura · Caixa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #111111;
+    --surface: #1c1c1c;
+    --surface2: #242424;
+    --border: #2e2e2e;
+    --gold: #c9a84c;
+    --gold-dim: #8a6f30;
+    --gold-glow: rgba(201,168,76,0.12);
+    --text: #f0ece3;
+    --text-dim: #7a7570;
+    --text-mid: #b0aa9f;
+    --danger: #c0392b;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  /* HEADER */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    padding: 16px 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .brand {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+  }
+
+  .brand span { color: var(--text-dim); font-weight: 400; font-size: 13px; letter-spacing: 0; margin-left: 6px; }
+
+  .export-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+  }
+  .export-btn:active { background: var(--surface); }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    flex: 1;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-dim);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 4px 12px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* MAIN */
+  main {
+    padding: 20px 16px 100px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* TODAY TOTAL */
+  .day-total {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .day-total-label {
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .day-total-value {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .day-total-value span { font-size: 18px; font-weight: 400; color: var(--gold-dim); margin-left: 2px; }
+
+  .day-date {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  /* INPUT */
+  .input-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .input-service {
+    flex: 2;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 15px;
+    padding: 12px 14px;
+    outline: none;
+    font-family: inherit;
+  }
+  .input-service::placeholder { color: var(--text-dim); }
+  .input-service:focus { border-color: var(--gold-dim); }
+
+  .input-value {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--gold);
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 14px;
+    outline: none;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .input-value::placeholder { color: var(--text-dim); font-weight: 400; }
+  .input-value:focus { border-color: var(--gold-dim); }
+
+  .add-btn {
+    width: 100%;
+    background: var(--gold);
+    color: #111;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 700;
+    padding: 13px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: opacity 0.15s;
+  }
+  .add-btn:active { opacity: 0.8; }
+
+  /* ENTRY LIST */
+  .section-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .entries { display: flex; flex-direction: column; gap: 8px; }
+
+  .entry {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 13px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .entry-time {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width: 38px;
+  }
+
+  .entry-name {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text);
+  }
+
+  .entry-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    min-width: 60px;
+    text-align: right;
+  }
+
+  .entry-del {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0 0 0 6px;
+    line-height: 1;
+  }
+  .entry-del:active { color: var(--danger); }
+
+  .empty {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 14px;
+    padding: 32px 0;
+    letter-spacing: 0.02em;
+  }
+
+  /* PERIOD VIEW (Semana / Mês / Ano) */
+  .period-total {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .period-total-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .period-total-value {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .period-total-value span { font-size: 20px; font-weight: 400; color: var(--gold-dim); }
+
+  /* DAY GROUPS */
+  .day-group {
+    margin-bottom: 16px;
+  }
+
+  .day-group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    cursor: pointer;
+  }
+
+  .day-group-header-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-mid);
+  }
+
+  .day-group-header-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .day-group-entries { display: flex; flex-direction: column; gap: 6px; padding: 0 4px; }
+
+  /* MONTH ROWS (ano) */
+  .month-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    cursor: pointer;
+  }
+
+  .month-row-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-mid);
+    text-transform: capitalize;
+  }
+
+  .month-row-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .month-row-count {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    text-align: right;
+  }
+
+  /* NAV ARROWS */
+  .nav-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .nav-arrow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .nav-arrow:active { background: var(--surface2); color: var(--gold); }
+
+  .nav-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-mid);
+    letter-spacing: 0.02em;
+    text-transform: capitalize;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--gold);
+    color: #111;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 20px;
+    z-index: 999;
+    transition: transform 0.25s ease;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="brand">AURA <span>Caixa</span></div>
+    <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('hoje')">Hoje</button>
+    <button class="tab" onclick="switchTab('semana')">Semana</button>
+    <button class="tab" onclick="switchTab('mes')">Mês</button>
+    <button class="tab" onclick="switchTab('ano')">Ano</button>
+  </div>
+</header>
+
+<main id="main-content"></main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────
+const KEY = 'aura_entries_v1';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+  catch { return []; }
+}
+
+function save(entries) {
+  localStorage.setItem(KEY, JSON.stringify(entries));
+}
+
+function addEntry(name, value) {
+  const entries = load();
+  entries.push({ id: Date.now(), name, value, ts: new Date().toISOString() });
+  save(entries);
+}
+
+function deleteEntry(id) {
+  save(load().filter(e => e.id !== id));
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+const fmt = v => v.toFixed(2).replace('.', ',');
+const pts = d => new Date(d.ts);
+const today = () => new Date();
+
+function isSameDay(a, b) {
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+}
+
+function isSameWeek(d, ref) {
+  // Mon–Sun week containing ref
+  const r = new Date(ref); r.setHours(0,0,0,0);
+  const day = r.getDay() || 7;
+  const mon = new Date(r); mon.setDate(r.getDate() - day + 1);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6); sun.setHours(23,59,59,999);
+  return d >= mon && d <= sun;
+}
+
+function isSameMonth(d, ref) {
+  return d.getFullYear()===ref.getFullYear() && d.getMonth()===ref.getMonth();
+}
+
+function isSameYear(d, ref) {
+  return d.getFullYear()===ref.getFullYear();
+}
+
+function formatTime(ts) {
+  const d = new Date(ts);
+  return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString('pt-PT',{weekday:'short',day:'numeric',month:'short'});
+}
+
+function formatMonth(d) {
+  return d.toLocaleDateString('pt-PT',{month:'long'});
+}
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let currentTab = 'hoje';
+let weekOffset = 0;
+let monthOffset = 0;
+let yearOffset = 0;
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render() {
+  const main = document.getElementById('main-content');
+  if (currentTab === 'hoje') main.innerHTML = renderHoje();
+  else if (currentTab === 'semana') main.innerHTML = renderSemana();
+  else if (currentTab === 'mes') main.innerHTML = renderMes();
+  else main.innerHTML = renderAno();
+}
+
+function renderHoje() {
+  const all = load();
+  const todayEntries = all.filter(e => isSameDay(pts(e), today())).reverse();
+  const total = todayEntries.reduce((s,e)=>s+e.value,0);
+  const now = today();
+  const dateStr = now.toLocaleDateString('pt-PT',{weekday:'long',day:'numeric',month:'long'});
+
+  return `
+    <div class="day-total">
+      <div>
+        <div class="day-total-label">Total de hoje</div>
+        <div class="day-total-value">${fmt(total)}<span> €</span></div>
+      </div>
+      <div class="day-date" style="text-transform:capitalize">${dateStr.replace(', ',' ')}</div>
+    </div>
+
+    <div class="input-block">
+      <div class="input-row">
+        <input class="input-service" id="inp-name" type="text" placeholder="Serviço (ex: Massagem)" autocomplete="off" autocorrect="off">
+        <input class="input-value" id="inp-val" type="number" inputmode="decimal" placeholder="€" min="0" step="0.01">
+      </div>
+      <button class="add-btn" onclick="handleAdd()">+ Adicionar</button>
+    </div>
+
+    ${todayEntries.length ? `
+      <div class="section-label">${todayEntries.length} registo${todayEntries.length!==1?'s':''}</div>
+      <div class="entries">
+        ${todayEntries.map(e=>`
+          <div class="entry">
+            <span class="entry-time">${formatTime(e.ts)}</span>
+            <span class="entry-name">${escHtml(e.name)}</span>
+            <span class="entry-value">${fmt(e.value)} €</span>
+            <button class="entry-del" onclick="handleDelete(${e.id})">✕</button>
+          </div>
+        `).join('')}
+      </div>
+    ` : `<div class="empty">Sem registos hoje.<br>Adiciona o primeiro serviço.</div>`}
+  `;
+}
+
+function renderSemana() {
+  const ref = new Date(); ref.setDate(ref.getDate() + weekOffset*7);
+  const r = new Date(ref); r.setHours(0,0,0,0);
+  const day = r.getDay() || 7;
+  const mon = new Date(r); mon.setDate(r.getDate() - day + 1);
+  const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+
+  const label = `${mon.getDate()} ${mon.toLocaleDateString('pt-PT',{month:'short'})} – ${sun.getDate()} ${sun.toLocaleDateString('pt-PT',{month:'short'})}`;
+
+  const all = load().filter(e => isSameWeek(pts(e), ref));
+  const total = all.reduce((s,e)=>s+e.value,0);
+
+  // group by day
+  const groups = {};
+  all.forEach(e => {
+    const d = pts(e);
+    const key = d.toDateString();
+    if (!groups[key]) groups[key] = { date: d, entries: [] };
+    groups[key].entries.push(e);
+  });
+
+  const sortedKeys = Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a));
+
+  return `
+    <div class="nav-row">
+      <button class="nav-arrow" onclick="weekOffset--;render()">‹</button>
+      <span class="nav-label">${weekOffset===0?'Esta semana':label}</span>
+      <button class="nav-arrow" onclick="if(weekOffset<0){weekOffset++;render()}" style="${weekOffset>=0?'opacity:.3;pointer-events:none':''}">›</button>
+    </div>
+
+    <div class="period-total">
+      <div class="period-total-label">Total da semana</div>
+      <div class="period-total-value">${fmt(total)}<span> €</span></div>
+    </div>
+
+    ${sortedKeys.length ? sortedKeys.map(k => {
+      const g = groups[k];
+      const dayTotal = g.entries.reduce((s,e)=>s+e.value,0);
+      const dayLabel = isSameDay(g.date,today()) ? 'Hoje' : formatDate(g.date);
+      return `
+        <div class="day-group">
+          <div class="day-group-header">
+            <span class="day-group-header-label" style="text-transform:capitalize">${dayLabel}</span>
+            <span class="day-group-header-value">${fmt(dayTotal)} €</span>
+          </div>
+          <div class="day-group-entries">
+            ${g.entries.slice().reverse().map(e=>`
+              <div class="entry">
+                <span class="entry-time">${formatTime(e.ts)}</span>
+                <span class="entry-name">${escHtml(e.name)}</span>
+                <span class="entry-value">${fmt(e.value)} €</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('') : `<div class="empty">Sem registos esta semana.</div>`}
+  `;
+}
+
+function renderMes() {
+  const ref = new Date();
+  ref.setDate(1);
+  ref.setMonth(ref.getMonth() + monthOffset);
+
+  const label = ref.toLocaleDateString('pt-PT',{month:'long',year:'numeric'});
+  const all = load().filter(e => isSameMonth(pts(e), ref));
+  const total = all.reduce((s,e)=>s+e.value,0);
+
+  const groups = {};
+  all.forEach(e => {
+    const d = pts(e);
+    const key = d.toDateString();
+    if (!groups[key]) groups[key] = { date: d, entries: [] };
+    groups[key].entries.push(e);
+  });
+
+  const sortedKeys = Object.keys(groups).sort((a,b)=>new Date(b)-new Date(a));
+
+  return `
+    <div class="nav-row">
+      <button class="nav-arrow" onclick="monthOffset--;render()">‹</button>
+      <span class="nav-label" style="text-transform:capitalize">${monthOffset===0?'Este mês':label}</span>
+      <button class="nav-arrow" onclick="if(monthOffset<0){monthOffset++;render()}" style="${monthOffset>=0?'opacity:.3;pointer-events:none':''}">›</button>
+    </div>
+
+    <div class="period-total">
+      <div class="period-total-label">Total do mês</div>
+      <div class="period-total-value">${fmt(total)}<span> €</span></div>
+    </div>
+
+    ${sortedKeys.length ? sortedKeys.map(k => {
+      const g = groups[k];
+      const dayTotal = g.entries.reduce((s,e)=>s+e.value,0);
+      const dayLabel = isSameDay(g.date,today()) ? 'Hoje' : formatDate(g.date);
+      return `
+        <div class="day-group">
+          <div class="day-group-header">
+            <span class="day-group-header-label" style="text-transform:capitalize">${dayLabel}</span>
+            <span class="day-group-header-value">${fmt(dayTotal)} €</span>
+          </div>
+          <div class="day-group-entries">
+            ${g.entries.slice().reverse().map(e=>`
+              <div class="entry">
+                <span class="entry-time">${formatTime(e.ts)}</span>
+                <span class="entry-name">${escHtml(e.name)}</span>
+                <span class="entry-value">${fmt(e.value)} €</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }).join('') : `<div class="empty">Sem registos este mês.</div>`}
+  `;
+}
+
+function renderAno() {
+  const ref = new Date();
+  ref.setFullYear(ref.getFullYear() + yearOffset);
+  const year = ref.getFullYear();
+
+  const all = load().filter(e => isSameYear(pts(e), ref));
+  const total = all.reduce((s,e)=>s+e.value,0);
+
+  // group by month
+  const months = {};
+  for (let m=0; m<12; m++) {
+    months[m] = { entries: [], date: new Date(year, m, 1) };
+  }
+  all.forEach(e => {
+    const m = pts(e).getMonth();
+    months[m].entries.push(e);
+  });
+
+  const monthsWithData = Object.values(months).filter(g=>g.entries.length>0).reverse();
+
+  return `
+    <div class="nav-row">
+      <button class="nav-arrow" onclick="yearOffset--;render()">‹</button>
+      <span class="nav-label">${yearOffset===0?'Este ano':year}</span>
+      <button class="nav-arrow" onclick="if(yearOffset<0){yearOffset++;render()}" style="${yearOffset>=0?'opacity:.3;pointer-events:none':''}">›</button>
+    </div>
+
+    <div class="period-total">
+      <div class="period-total-label">Total anual ${year}</div>
+      <div class="period-total-value">${fmt(total)}<span> €</span></div>
+    </div>
+
+    <div class="section-label">Por mês</div>
+
+    ${monthsWithData.length ? monthsWithData.map(g => {
+      const mTotal = g.entries.reduce((s,e)=>s+e.value,0);
+      const mName = formatMonth(g.date);
+      return `
+        <div class="month-row">
+          <div>
+            <div class="month-row-name">${mName}</div>
+            <div class="month-row-count">${g.entries.length} registo${g.entries.length!==1?'s':''}</div>
+          </div>
+          <div class="month-row-value">${fmt(mTotal)} €</div>
+        </div>
+      `;
+    }).join('') : `<div class="empty">Sem registos este ano.</div>`}
+  `;
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────
+function handleAdd() {
+  const nameEl = document.getElementById('inp-name');
+  const valEl  = document.getElementById('inp-val');
+  const name   = nameEl.value.trim();
+  const value  = parseFloat(valEl.value);
+
+  if (!name) { nameEl.focus(); return; }
+  if (!value || value <= 0) { valEl.focus(); return; }
+
+  addEntry(name, value);
+  nameEl.value = '';
+  valEl.value = '';
+  nameEl.focus();
+  render();
+  showToast(`${name} · ${fmt(value)} €`);
+}
+
+function handleDelete(id) {
+  deleteEntry(id);
+  render();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.textContent.toLowerCase() === tab ||
+      (tab==='hoje'&&t.textContent==='Hoje') ||
+      (tab==='semana'&&t.textContent==='Semana') ||
+      (tab==='mes'&&t.textContent==='Mês') ||
+      (tab==='ano'&&t.textContent==='Ano'));
+  });
+  render();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── EXPORT CSV ────────────────────────────────────────────────────────────
+function exportCSV() {
+  const entries = load();
+  if (!entries.length) { showToast('Sem dados para exportar'); return; }
+
+  const lines = ['Data,Hora,Serviço,Valor (€)'];
+  entries.sort((a,b)=>new Date(a.ts)-new Date(b.ts)).forEach(e => {
+    const d = new Date(e.ts);
+    const date = d.toLocaleDateString('pt-PT');
+    const time = formatTime(e.ts);
+    lines.push(`"${date}","${time}","${e.name.replace(/"/g,'""')}","${fmt(e.value)}"`);
+  });
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `aura_caixa_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exportado!');
+}
+
+// ── ENTER KEY ─────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && currentTab === 'hoje') handleAdd();
+});
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
