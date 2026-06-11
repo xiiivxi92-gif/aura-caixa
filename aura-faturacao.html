@@ -147,63 +147,122 @@
 
   /* INPUT */
   .input-block {
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: linear-gradient(145deg, #222018, #1a1a16);
+    border: 1px solid #3a3220;
     border-radius: var(--radius);
-    padding: 16px;
+    padding: 18px;
     margin-bottom: 20px;
+    box-shadow: 0 0 0 1px rgba(201,168,76,0.08), 0 4px 24px rgba(0,0,0,0.4);
   }
 
   .input-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 12px;
   }
 
   .input-service {
     flex: 2;
-    background: var(--surface2);
-    border: 1px solid var(--border);
+    background: #161612;
+    border: 1.5px solid #2e2a1e;
     border-radius: var(--radius-sm);
     color: var(--text);
     font-size: 15px;
-    padding: 12px 14px;
+    padding: 14px 16px;
     outline: none;
     font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
   .input-service::placeholder { color: var(--text-dim); }
-  .input-service:focus { border-color: var(--gold-dim); }
+  .input-service:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+
+  .input-value-wrap {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-value-symbol {
+    position: absolute;
+    left: 14px;
+    color: var(--gold-dim);
+    font-size: 15px;
+    font-weight: 600;
+    pointer-events: none;
+    z-index: 1;
+  }
 
   .input-value {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
+    width: 100%;
+    background: #161612;
+    border: 1.5px solid #2e2a1e;
     border-radius: var(--radius-sm);
     color: var(--gold);
     font-size: 15px;
     font-weight: 600;
-    padding: 12px 14px;
+    padding: 14px 14px 14px 28px;
     outline: none;
     font-family: inherit;
     font-variant-numeric: tabular-nums;
+    transition: border-color 0.2s, box-shadow 0.2s;
   }
   .input-value::placeholder { color: var(--text-dim); font-weight: 400; }
-  .input-value:focus { border-color: var(--gold-dim); }
+  .input-value:focus {
+    border-color: var(--gold-dim);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+  }
+
+  .input-date-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .input-date-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .input-date {
+    flex: 1;
+    background: #161612;
+    border: 1.5px solid #2e2a1e;
+    border-radius: var(--radius-sm);
+    color: var(--text-mid);
+    font-size: 13px;
+    padding: 8px 12px;
+    outline: none;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    color-scheme: dark;
+  }
+  .input-date:focus { border-color: var(--gold-dim); }
 
   .add-btn {
     width: 100%;
-    background: var(--gold);
+    background: linear-gradient(135deg, #d4a843, #b8892e);
     color: #111;
     border: none;
     border-radius: var(--radius-sm);
     font-size: 15px;
-    font-weight: 700;
-    padding: 13px;
+    font-weight: 800;
+    padding: 15px;
     cursor: pointer;
-    letter-spacing: 0.02em;
-    transition: opacity 0.15s;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+    box-shadow: 0 2px 12px rgba(201,168,76,0.3), 0 1px 0 rgba(255,255,255,0.1) inset;
+    text-transform: uppercase;
   }
-  .add-btn:active { opacity: 0.8; }
+  .add-btn:active { opacity: 0.85; transform: scale(0.99); }
 
   /* ENTRY LIST */
   .section-label {
@@ -417,8 +476,12 @@
 <header>
   <div class="header-top">
     <div class="brand">AURA <span>Caixa</span></div>
-    <button class="export-btn" onclick="exportCSV()">Exportar CSV</button>
+    <div style="display:flex;gap:6px">
+      <button class="export-btn" onclick="importCSV()">↑ Importar</button>
+      <button class="export-btn" onclick="exportCSV()">↓ Exportar</button>
+    </div>
   </div>
+  <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCSVFile(event)">
   <div class="tabs">
     <button class="tab active" onclick="switchTab('hoje')">Hoje</button>
     <button class="tab" onclick="switchTab('semana')">Semana</button>
@@ -525,9 +588,16 @@ function renderHoje() {
     </div>
 
     <div class="input-block">
+      <div class="input-date-row">
+        <span class="input-date-label">Dia</span>
+        <input class="input-date" id="inp-date" type="date">
+      </div>
       <div class="input-row">
         <input class="input-service" id="inp-name" type="text" placeholder="Serviço (ex: Massagem)" autocomplete="off" autocorrect="off">
-        <input class="input-value" id="inp-val" type="number" inputmode="decimal" placeholder="€" min="0" step="0.01">
+        <div class="input-value-wrap">
+          <span class="input-value-symbol">€</span>
+          <input class="input-value" id="inp-val" type="number" inputmode="decimal" placeholder="0,00" min="0" step="0.01">
+        </div>
       </div>
       <button class="add-btn" onclick="handleAdd()">+ Adicionar</button>
     </div>
@@ -718,13 +788,29 @@ function renderAno() {
 function handleAdd() {
   const nameEl = document.getElementById('inp-name');
   const valEl  = document.getElementById('inp-val');
+  const dateEl = document.getElementById('inp-date');
   const name   = nameEl.value.trim();
   const value  = parseFloat(valEl.value);
 
   if (!name) { nameEl.focus(); return; }
   if (!value || value <= 0) { valEl.focus(); return; }
 
-  addEntry(name, value);
+  // Usar a data selecionada, mantendo hora atual
+  const selectedDate = dateEl.value; // YYYY-MM-DD
+  let ts;
+  if (selectedDate) {
+    const now = new Date();
+    const [y,m,d] = selectedDate.split('-').map(Number);
+    const dt = new Date(y, m-1, d, now.getHours(), now.getMinutes(), now.getSeconds());
+    ts = dt.toISOString();
+  } else {
+    ts = new Date().toISOString();
+  }
+
+  const entries = load();
+  entries.push({ id: Date.now(), name, value, ts });
+  save(entries);
+
   nameEl.value = '';
   valEl.value = '';
   nameEl.focus();
@@ -788,8 +874,75 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && currentTab === 'hoje') handleAdd();
 });
 
+// ── IMPORT CSV ────────────────────────────────────────────────────────────
+function importCSV() {
+  document.getElementById('csv-file-input').click();
+}
+
+function handleCSVFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const text = ev.target.result;
+    const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+    if (lines.length < 2) { showToast('Ficheiro vazio ou inválido'); return; }
+
+    const existing = load();
+    const existingIds = new Set(existing.map(e=>e.ts+'|'+e.name+'|'+e.value));
+    let added = 0;
+
+    // skip header
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].match(/(".*?"|[^,]+)(?=,|$)/g);
+      if (!cols || cols.length < 4) continue;
+      const clean = cols.map(c=>c.replace(/^"|"$/g,'').replace(/""/g,'"'));
+      const [dateStr, timeStr, name, valueStr] = clean;
+      if (!dateStr || !name || !valueStr) continue;
+
+      // parse date dd/mm/yyyy and time hh:mm
+      const dp = dateStr.split('/');
+      const tp = (timeStr||'12:00').split(':');
+      if (dp.length < 3) continue;
+      const dt = new Date(+dp[2], +dp[1]-1, +dp[0], +(tp[0]||12), +(tp[1]||0));
+      if (isNaN(dt)) continue;
+
+      const value = parseFloat(valueStr.replace(',','.'));
+      if (!value || !name) continue;
+
+      const ts = dt.toISOString();
+      const key = ts+'|'+name+'|'+value;
+      if (!existingIds.has(key)) {
+        existing.push({ id: dt.getTime() + Math.random(), name, value, ts });
+        existingIds.add(key);
+        added++;
+      }
+    }
+
+    save(existing);
+    render();
+    showToast(added > 0 ? `${added} registos importados!` : 'Sem novos registos');
+    e.target.value = '';
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
 // ── INIT ──────────────────────────────────────────────────────────────────
+// Definir data de hoje no seletor
+function initDateInput() {
+  const el = document.getElementById('inp-date');
+  if (el) {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth()+1).padStart(2,'0');
+    const d = String(now.getDate()).padStart(2,'0');
+    el.value = `${y}-${m}-${d}`;
+    el.max = `${y}-${m}-${d}`;
+  }
+}
+
 render();
+initDateInput();
 </script>
 </body>
 </html>
